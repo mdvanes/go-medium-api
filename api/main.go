@@ -94,7 +94,7 @@ func GetArticles(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Println("status =", record.Success)
 		log.Println("Nr of posts =", len(posts))
-		fmt.Println("First Title =", posts[0].Title)
+		fmt.Println("First Title =", posts[0].Title, posts[0].LatestPublishedAt, posts[0].PreviewContent.BodyModel.Paragraphs[1].Text)
 
 		// Write the struct to the response
 		json.NewEncoder(w).Encode(posts)
@@ -104,6 +104,15 @@ func GetArticles(w http.ResponseWriter, r *http.Request) {
 type Post struct {
 	ID                     string `json:"id"`
 	Title                  string `json:"title"`
+	CreatorId              string `json:"creatorId"`
+	LatestPublishedAt      int    `json:"latestPublishedAt"`
+	PreviewContent struct {
+		BodyModel struct {
+			Paragraphs []struct {
+				Text       string `json:"text"`
+			} `json:"paragraphs"`
+		} `json:"bodyModel"`
+	} `json:"previewContent"`
 }
 
 // Auto generated with https://mholt.github.io/json-to-go/ from https://medium.com/codestar-blog/latest?format=json
@@ -111,6 +120,10 @@ type LatestResponse struct {
 	Success bool `json:"success"`
 	Payload struct {
 		Posts []Post `json:"posts,omitempty"`
+
+		// references > []User > ?id? >
+		//            userId (equal to Post.creatorId)
+		//            name (author name)
 	} `json:"payload"`
 }
 
