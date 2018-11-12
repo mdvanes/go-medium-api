@@ -27,12 +27,12 @@ import (
 
 // our main function
 func main() {
-	articles = append(articles, Article{ID: "1", Title: "My Title"})
+	//articles = append(articles, Article{ID: "1", Title: "My Title"})
 
-	fmt.Println("Server running, try GET on http://localhost:8000/articles")
+	fmt.Println("Server running, try GET on http://localhost:8000/posts")
 
 	router := mux.NewRouter()
-	router.HandleFunc("/articles", GetArticles).Methods("GET")
+	router.HandleFunc("/posts", GetArticles).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
 
@@ -90,15 +90,15 @@ func GetArticles(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 
-		fmt.Println("status = ", record.Success)
-		fmt.Println("len(Payload.Posts) = ", len(record.Payload.Posts))
-		fmt.Println("Payload.Posts[0].Title = ", record.Payload.Posts[0].Title)
-		//fmt.Println("Location  = ", record.Location)
-		//fmt.Println("Carrier   = ", record.Carrier)
-		//fmt.Println("LineType  = ", record.LineType)
+		posts = record.Payload.Posts
+
+		fmt.Println("status =", record.Success)
+		log.Println("Nr of posts =", len(posts))
+		fmt.Println("First Title =", posts[0].Title)
+
+		// Write the struct to the response
+		json.NewEncoder(w).Encode(posts)
 	}
-	//
-	//json.NewEncoder(w).Encode(articles)
 }
 
 type Post struct {
@@ -106,21 +106,12 @@ type Post struct {
 	Title                  string `json:"title"`
 }
 
-// TODO deduplicate Post
 // Auto generated with https://mholt.github.io/json-to-go/ from https://medium.com/codestar-blog/latest?format=json
 type LatestResponse struct {
 	Success bool `json:"success"`
 	Payload struct {
-		Posts []struct {
-			ID                     string `json:"id"`
-			Title                  string `json:"title"`
-		} `json:"posts"`
+		Posts []Post `json:"posts,omitempty"`
 	} `json:"payload"`
 }
 
-type Article struct {
-	ID        string   `json:"id,omitempty"`
-	Title     string   `json:"title,omitempty"`
-}
-
-var articles []Article
+var posts []Post
