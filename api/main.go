@@ -21,6 +21,8 @@ import (
 	"github.com/gorilla/mux"
 	"fmt"
 	"io/ioutil"
+	"encoding/json"
+	"strings"
 )
 
 // our main function
@@ -77,21 +79,23 @@ func GetArticles(w http.ResponseWriter, r *http.Request) {
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
 		bodyString := string(bodyBytes)
-		log.Println(bodyString[16:len(bodyString)])
+		saneBodyString := bodyString[16:len(bodyString)]
+		//log.Println(bodyString[16:len(bodyString)])
+
+		// Fill the record with the data from the JSON
+		var record LatestResponse
+
+		// Use json.Decode for reading streams of JSON data
+		if err := json.NewDecoder(strings.NewReader(saneBodyString)).Decode(&record); err != nil {
+			log.Println(err)
+		}
+
+		fmt.Println("status = ", record.Success)
+		fmt.Println("len(Payload.Posts) = ", len(record.Payload.Posts))
+		//fmt.Println("Location  = ", record.Location)
+		//fmt.Println("Carrier   = ", record.Carrier)
+		//fmt.Println("LineType  = ", record.LineType)
 	}
-	// Fill the record with the data from the JSON
-	//var record Numverify
-
-	// Use json.Decode for reading streams of JSON data
-	//if err := json.NewDecoder(resp.Body).Decode(&record); err != nil {
-	//	log.Println(err)
-	//}
-
-	//fmt.Println("Phone No. = ", record.InternationalFormat)
-	//fmt.Println("Country   = ", record.CountryName)
-	//fmt.Println("Location  = ", record.Location)
-	//fmt.Println("Carrier   = ", record.Carrier)
-	//fmt.Println("LineType  = ", record.LineType)
 	//
 	//json.NewEncoder(w).Encode(articles)
 }
@@ -107,6 +111,7 @@ type Publication struct {
 	} `json:"data"`
 }
 
+// TODO do partial unmarshalling
 // Auto generated with https://mholt.github.io/json-to-go/ from https://medium.com/codestar-blog/latest?format=json
 type LatestResponse struct {
 	Success bool `json:"success"`
