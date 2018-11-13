@@ -31,6 +31,11 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/posts", GetPosts).Methods("GET")
+
+	fs := http.FileServer(http.Dir("static"))
+	router.Handle("/", fs)
+	router.Handle("/main.js", fs)
+
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
 
