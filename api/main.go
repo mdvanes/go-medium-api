@@ -32,21 +32,14 @@ func main() {
 	fmt.Println("Server running, try GET on http://localhost:8000/posts")
 
 	router := mux.NewRouter()
-	router.HandleFunc("/posts", GetArticles).Methods("GET")
+	router.HandleFunc("/posts", GetPosts).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
 
-// TODO rename Articles to Publications
-func GetArticles(w http.ResponseWriter, r *http.Request) {
-
-	// authentication https://github.com/Medium/medium-api-docs#21-browser-based-authentication
-
-	//clientId := 1;
-    //url1 := fmt.Sprintf("https://medium.com/m/oauth/authorize?client_id=%s&scope=basicProfile,listPublications&state=initial&response_type=code&redirect_uri={{redirectUri}}", clientId)
-
-	// https://github.com/Medium/medium-api-docs#32-publications
-	// TODO find USERID for @mdworldNL
+func GetPosts(w http.ResponseWriter, r *http.Request) {
 	url := "https://medium.com/codestar-blog/latest?format=json"
+
+	// TODO split into smaller functions
 
 	// Build the request
 	req, err := http.NewRequest("GET", url, nil)
@@ -91,14 +84,45 @@ func GetArticles(w http.ResponseWriter, r *http.Request) {
 		}
 
 		posts = record.Payload.Posts
+		var users = record.Payload.References.User
 
-		fmt.Println("status =", record.Success)
 		log.Println("Nr of posts =", len(posts))
-		fmt.Println("First Title =", posts[0].Title, posts[0].LatestPublishedAt, posts[0].PreviewContent.BodyModel.Paragraphs[1].Text)
+		//fmt.Println("status =", record.Success)
+		//fmt.Println("First Title =", posts[0].Title, posts[0].LatestPublishedAt, posts[0].PreviewContent.BodyModel.Paragraphs[1].Text)
+		//log.Println("Users =", record.Payload.References)
+		//for _, user := range users {
+		//	log.Println("user =", user)
+		//}
 
 		// Write the struct to the response
-		json.NewEncoder(w).Encode(posts)
+		//json.NewEncoder(w).Encode(posts)
+
+		// Convert Post to SimplePost
+		var simplePosts []SimplePost
+
+		// TODO use mapping
+		// range posts returns index, item
+		for _, item := range posts {
+			var simplePost SimplePost
+			simplePost.ID = item.ID
+			simplePost.Title = item.Title
+			simplePost.Author = users[item.CreatorId].Name
+			simplePost.LatestPublishedAt = item.LatestPublishedAt
+			simplePost.Paragraphs = item.PreviewContent.BodyModel.Paragraphs
+			simplePosts = append(simplePosts, simplePost)
+		}
+		json.NewEncoder(w).Encode(simplePosts)
 	}
+}
+
+type SimplePost struct {
+	ID                     string `json:"id"`
+	Title                  string `json:"title"`
+	Author                 string `json:"author"`
+	LatestPublishedAt      int    `json:"latestPublishedAt"`
+	Paragraphs []struct {
+		Text               string `json:"text"`
+	} `json:"paragraphs"`
 }
 
 type Post struct {
@@ -115,15 +139,24 @@ type Post struct {
 	} `json:"previewContent"`
 }
 
+type User struct {
+	UserID            string `json:"userId"`              // userId (equal to Post.creatorId)
+	Name              string `json:"name"`                // name (author name)
+	Username          string `json:"username"`
+	ImageID           string `json:"imageId"`
+	BackgroundImageID string `json:"backgroundImageId"`
+	Bio               string `json:"bio"`
+	TwitterScreenName string `json:"twitterScreenName"`
+}
+
 // Auto generated with https://mholt.github.io/json-to-go/ from https://medium.com/codestar-blog/latest?format=json
 type LatestResponse struct {
 	Success bool `json:"success"`
 	Payload struct {
 		Posts []Post `json:"posts,omitempty"`
-
-		// references > []User > ?id? >
-		//            userId (equal to Post.creatorId)
-		//            name (author name)
+		References struct {
+			User map[string]User
+		}
 	} `json:"payload"`
 }
 
