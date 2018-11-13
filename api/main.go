@@ -27,8 +27,6 @@ import (
 
 // our main function
 func main() {
-	//articles = append(articles, Article{ID: "1", Title: "My Title"})
-
 	fmt.Println("Server running, try GET on http://localhost:8000/posts")
 
 	router := mux.NewRouter()
@@ -38,8 +36,6 @@ func main() {
 
 func GetPosts(w http.ResponseWriter, r *http.Request) {
 	url := "https://medium.com/codestar-blog/latest?format=json"
-
-	// TODO split into smaller functions
 
 	// Build the request
 	req, err := http.NewRequest("GET", url, nil)
@@ -70,36 +66,36 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 
 	// Strip security prefix
 	if resp.StatusCode == http.StatusOK {
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		bodyString := string(bodyBytes)
-		saneBodyString := bodyString[16:len(bodyString)]
-		//log.Println(bodyString[16:len(bodyString)])
-
-		// Fill the record with the data from the JSON
-		var record LatestResponse
-
-		// Use json.Decode for reading streams of JSON data
-		if err := json.NewDecoder(strings.NewReader(saneBodyString)).Decode(&record); err != nil {
-			log.Println(err)
-		}
-
-		posts = record.Payload.Posts
-		var users = record.Payload.References.User
-
-		log.Println("Nr of posts =", len(posts))
-		//fmt.Println("status =", record.Success)
-		//fmt.Println("First Title =", posts[0].Title, posts[0].LatestPublishedAt, posts[0].PreviewContent.BodyModel.Paragraphs[1].Text)
-		//log.Println("Users =", record.Payload.References)
-		//for _, user := range users {
-		//	log.Println("user =", user)
-		//}
-
-		// Write the struct to the response
-		//json.NewEncoder(w).Encode(posts)
-
+		var posts, users = ParseResponse(resp)
+		LogResponse(posts)
 		simplePosts := ConvertPosts(posts, users)
 		json.NewEncoder(w).Encode(simplePosts)
 	}
 }
 
-var posts []Post
+func ParseResponse(resp *http.Response) ([]Post, map[string]User) {
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyString := string(bodyBytes)
+	saneBodyString := bodyString[16:len(bodyString)]
+	//log.Println(bodyString[16:len(bodyString)])
+
+	// Fill the record with the data from the JSON
+	var record LatestResponse
+
+	// Use json.Decode for reading streams of JSON data
+	if err := json.NewDecoder(strings.NewReader(saneBodyString)).Decode(&record); err != nil {
+		log.Println(err)
+	}
+
+	return record.Payload.Posts, record.Payload.References.User
+}
+
+func LogResponse(posts []Post) {
+	log.Println("Nr of posts =", len(posts))
+	//fmt.Println("status =", record.Success)
+	//fmt.Println("First Title =", posts[0].Title, posts[0].LatestPublishedAt, posts[0].PreviewContent.BodyModel.Paragraphs[1].Text)
+	//log.Println("Users =", record.Payload.References)
+	//for _, user := range users {
+	//	log.Println("user =", user)
+	//}
+}
