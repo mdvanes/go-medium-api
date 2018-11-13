@@ -11,7 +11,7 @@ in Go (to learn Go).
 
 ## TODO
 
-* Call medium.com
+* :heavy_check_mark: Call medium.com
 * Add tests
 * Add a simple front-end (host in this server?)
 * Add Rambda and/or Focal to the front-end
