@@ -78,7 +78,7 @@ function init() {
                     postCard.setPostData(item);
                     return postCard;
                 })
-                .forEach(item => document.body.appendChild(item));
+                .forEach(item => document.getElementById('main').appendChild(item));
         });
 }
 
