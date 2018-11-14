@@ -24,4 +24,7 @@ func TestConvertPosts(t *testing.T) {
 	if len(convertedPosts) != 1 {
 		t.Errorf("ConvertPosts was incorrect, got: %d, want: %d.", len(convertedPosts), 1)
 	}
+	if convertedPosts[0].Author != "An Author" {
+		t.Errorf("ConvertPosts author was incorrect, got: %s, want: %s.", convertedPosts[0].Author, "An Author")
+	}
 }
