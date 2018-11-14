@@ -45,7 +45,9 @@ class PostCard extends HTMLElement {
             border: 1px solid cornflowerblue;
             border-radius: 4px;
             box-shadow: 5px 5px 5px #ddd;
+            box-sizing: border-box;
             display: inline-block;
+            height: 100%;
             padding: 1.5em;
           }
           
