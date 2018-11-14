@@ -18,14 +18,21 @@ class PostCard extends HTMLElement {
 
         const meta = document.createElement('span');
         meta.setAttribute('class', 'meta');
-        meta.textContent = `Written by ${data.author} on ${data.latestPublishedAt}`;
+        const formattedDate = (new Date(data.latestPublishedAt)).toLocaleString('nl-NL');
+        meta.textContent = `Written by ${data.author} on ${formattedDate}`;
         wrapper.appendChild(meta);
 
-        for (const paragraph of data.paragraphs) {
+        const nonTitleParagraphs = data.paragraphs.slice(1);
+        for (const paragraph of nonTitleParagraphs) {
             const p = document.createElement('p');
             p.textContent = paragraph.text;
             wrapper.appendChild(p);
         }
+
+        const a = document.createElement('a');
+        a.setAttribute('href', '#');
+        a.textContent = 'Read more';
+        wrapper.appendChild(a);
 
         return wrapper;
     }
@@ -34,11 +41,23 @@ class PostCard extends HTMLElement {
         const style = document.createElement('style');
         style.textContent = `
           .wrapper {
-            border: 1px solid darkblue;
+            background-color: aliceblue;
+            border: 1px solid cornflowerblue;
             border-radius: 4px;
             box-shadow: 5px 5px 5px #ddd;
             display: inline-block;
             padding: 1.5em;
+          }
+          
+          h2.title {
+            margin-bottom: 0;
+          }
+          
+          span.meta {
+            color: #555;
+            display: block;
+            font-size: 80%;
+            margin-bottom: 1em;
           }
         `;
         return style;

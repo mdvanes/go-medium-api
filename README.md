@@ -13,7 +13,7 @@ in Go (to learn Go).
 
 * :heavy_check_mark: Call medium.com
 * :heavy_check_mark: Add tests
-* Add a simple front-end (host in this server? https://www.alexedwards.net/blog/serving-static-sites-with-go)
+* :heavy_check_mark: Add a simple front-end
 * Add Rambda and/or Focal to the front-end
 
 ```
