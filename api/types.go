@@ -4,7 +4,9 @@ type SimplePost struct {
 	ID                     string `json:"id"`
 	Title                  string `json:"title"`
 	Author                 string `json:"author"`
+	AuthorImg			   string `json:"authorImg"`
 	LatestPublishedAt      int    `json:"latestPublishedAt"`
+	UniqueSlug             string `json:"uniqueSlug"`
 	Paragraphs []struct {
 		Text               string `json:"text"`
 	} `json:"paragraphs"`
@@ -15,6 +17,7 @@ type Post struct {
 	Title                  string `json:"title"`
 	CreatorId              string `json:"creatorId"`
 	LatestPublishedAt      int    `json:"latestPublishedAt"`
+	UniqueSlug     		   string `json:"uniqueSlug"`
 	PreviewContent struct {
 		BodyModel struct {
 			Paragraphs []struct {

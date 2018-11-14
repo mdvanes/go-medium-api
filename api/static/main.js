@@ -22,6 +22,11 @@ class PostCard extends HTMLElement {
         meta.textContent = `Written by ${data.author} on ${formattedDate}`;
         wrapper.appendChild(meta);
 
+        const imgUrl = `https://cdn-images-1.medium.com/fit/c/60/60/${data.authorImg}`;
+        const img = document.createElement('img');
+        img.setAttribute('src', imgUrl);
+        wrapper.appendChild(img);
+
         const nonTitleParagraphs = data.paragraphs.slice(1);
         for (const paragraph of nonTitleParagraphs) {
             const p = document.createElement('p');
@@ -30,7 +35,8 @@ class PostCard extends HTMLElement {
         }
 
         const a = document.createElement('a');
-        a.setAttribute('href', '#');
+        const url = `https://medium.com/codestar-blog/${data.uniqueSlug}`;
+        a.setAttribute('href', url);
         a.textContent = 'Read more';
         wrapper.appendChild(a);
 
@@ -60,6 +66,10 @@ class PostCard extends HTMLElement {
             display: block;
             font-size: 80%;
             margin-bottom: 1em;
+          }
+          
+          img {
+            width: 30px;
           }
         `;
         return style;
